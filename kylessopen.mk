@@ -40,6 +40,9 @@ PRODUCT_PACKAGES += \
     hwcomposer.msm7x27a \
     libtilerenderer
     
+# Torch
+PRODUCT_PACKAGES += Torch
+    
 # Lights
 PRODUCT_PACKAGES += \
     lights.msm7x27a
@@ -58,10 +61,6 @@ PRODUCT_PACKAGES += \
     libmm-omxcore \
     libOmxCore \
     libstagefrighthw
-    
-# Torch
-PRODUCT_PACKAGES := \
-    Torch
 
 # Ramdisk
 PRODUCT_COPY_FILES += \
