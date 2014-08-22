@@ -5,6 +5,9 @@
 # Bluetooth
 ro.bt.bdaddr_path=/data/misc/bluedroid/bdaddr
 
+# Call Recording
+persist.call_recording.enabled=1
+
 # Dalvik
 dalvik.vm.checkjni=0
 dalvik.vm.dexopt-data-only=1
