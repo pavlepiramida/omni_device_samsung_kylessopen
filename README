@@ -1,6 +1,6 @@
-CyanogenMod 11 device tree for the Samsung Galaxy Ace II x (GT-S7560M)
+OmniROM 4.4 device tree for the Samsung Galaxy Ace II X (GT-S7560M)
 
-How to compile (On Ubuntu 14.XX):
+///How to compile (On Ubuntu 14.XX):
 
 1. Open terminal, create a new folder and "cd" into it.
 2. Type "repo init -u git://github.com/CyanogenMod/android.git -b cm-11.0" to initialize the repo.
@@ -13,4 +13,4 @@ How to compile (On Ubuntu 14.XX):
 How to rebuild after modifying device tree:
 
 1. Naviage to the main CM directory from within terminal and type "repo sync && make clobber && cd device/samsung/kylessopen && ./setup-makefiles.sh && cd ../../.. && cd vendor/cm &&  ./get-prebuilts && cd ../.. && . build/envsetup.sh && brunch kylessopen"
-NOTE: "repo sync" updates the CM code to the latest; "make clobber" clears the build directory which is not necessary, but I reccomend it because sometimes make misses some changes, especially when modifying the device tree.
+NOTE: "repo sync" updates the CM code to the latest; "make clobber" clears the build directory which is not necessary, but I reccomend it because sometimes make misses some changes, especially when modifying the device tree.///

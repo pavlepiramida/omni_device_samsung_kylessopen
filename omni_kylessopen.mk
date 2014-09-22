@@ -1,5 +1,7 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
+$(call inherit-product, vendor/omni/config/common.mk)
+
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
@@ -41,7 +43,7 @@ PRODUCT_PACKAGES += \
     libtilerenderer
     
 # Torch
-PRODUCT_PACKAGES += Torch
+PRODUCT_PACKAGES += OmniTorch
     
 # Lights
 PRODUCT_PACKAGES += \
@@ -95,8 +97,7 @@ PRODUCT_COPY_FILES += \
 
 # Recovery
 PRODUCT_COPY_FILES += \
-    device/samsung/kylessopen/recovery/postrecoveryboot.sh:recovery/root/sbin/postrecoveryboot.sh \
-    device/samsung/kylessopen/recovery/postrecoveryboot.sh:recovery/system/bin/postrecoveryboot.sh
+$(call find-copy-subdir-files,*,device/samsung/kylessopen/prebuilt/recovery,recovery/root)
 
 # FM
 PRODUCT_COPY_FILES += \
@@ -116,7 +117,7 @@ $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 $(call inherit-product, build/target/product/full.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_kylessopen
+PRODUCT_NAME := omni_kylessopen
 PRODUCT_DEVICE := kylessopen
 PRODUCT_MANUFACTURER := samsung
 PRODUCT_MODEL := GT-S7560M

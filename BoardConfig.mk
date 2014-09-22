@@ -39,7 +39,6 @@ TARGET_NO_RADIOIMAGE := true
 # Kernel
 TARGET_KERNEL_CONFIG := cyanogenmod_kyle02_defconfig
 TARGET_KERNEL_SOURCE := kernel/samsung/kylessopen
-TARGET_KERNEL_CUSTOM_TOOLCHAIN := sabermod-arm-eabi-4.7
 TARGET_BOOTLOADER_BOARD_NAME := kylessopen
 BOARD_KERNEL_CMDLINE := androidboot.hardware=kylessopen
 BOARD_KERNEL_BASE := 0x00200000
@@ -59,6 +58,7 @@ BOARD_VOLD_MAX_PARTITIONS := 24
 
 # Qualcomm hardware
 BOARD_USES_QCOM_HARDWARE := true
+TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE
 
 # Graphics
@@ -72,6 +72,7 @@ BOARD_USE_MHEAP_SCREENSHOT := true
 
 # OMX
 TARGET_QCOM_LEGACY_OMX := true
+TARGET_QCOM_LEGACY_MMPARSER := true
 TARGET_QCOM_MEDIA_VARIANT := legacy
 COMMON_GLOBAL_CFLAGS += -DQCOM_NO_SECURE_PLAYBACK
 
@@ -142,14 +143,24 @@ BOARD_CHARGING_MODE_BOOTING_LPM := "/sys/class/power_supply/ac/online"
 BOARD_BATTERY_DEVICE_NAME := "battery"
 
 # Recovery
-TARGET_RECOVERY_INITRC := device/samsung/kylessopen/recovery/init.rc
+TARGET_RECOVERY_INITRC := device/samsung/kylessopen/ramdisk/init.recovery.rc
 TARGET_RECOVERY_FSTAB := device/samsung/kylessopen/ramdisk/fstab.qcom
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/kylessopen/recovery/recovery_keys.c
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/devices/platform/msm_hsusb/gadget/lun%d/file
 BOARD_UMS_LUNFILE := "/sys/devices/platform/msm_hsusb/gadget/lun%d/file"
 TARGET_USERIMAGES_USE_EXT4 := true
-BOARD_HAS_SDCARD_INTERNAL := trues
+RECOVERY_SDCARD_ON_DATA := true
 BOARD_HAS_DOWNLOAD_MODE := true
 BOARD_USES_MMCUTILS := true
 BOARD_HAS_NO_MISC_PARTITION := true
+DEVICE_RESOLUTION := 480x800
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TW_INCLUDE_FB2PNG := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_HAS_DOWNLOAD_MODE := true
+SKIP_SET_METADATA := true
+TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+TARGET_RECOVERY_LCD_BACKLIGHT_PATH := "/sys/class/leds/lcd-backlight/brightness"
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+TW_DEFAULT_EXTERNAL_STORAGE := true
