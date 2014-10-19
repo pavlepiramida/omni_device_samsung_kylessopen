@@ -76,7 +76,6 @@ TARGET_QCOM_LEGACY_MMPARSER := true
 TARGET_QCOM_MEDIA_VARIANT := legacy
 COMMON_GLOBAL_CFLAGS += -DQCOM_NO_SECURE_PLAYBACK
 
-#this-single-line-is-a-test-for-github
 # PowerHAL
 TARGET_USES_CM_POWERHAL := true
 
