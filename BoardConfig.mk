@@ -61,7 +61,7 @@ WITH_DEXPREOPT := true
 
 #Use prebuilt chromium
 PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
-PRODUCT_PREBUILT_WEBVIEWCHROMIUM=yes
+
 
 # Graphics
 BOARD_EGL_CFG := device/samsung/kylessopen/prebuilt/system/lib/egl/egl.cfg
