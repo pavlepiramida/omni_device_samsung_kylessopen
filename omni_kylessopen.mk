@@ -41,9 +41,10 @@ PRODUCT_PACKAGES += \
     gralloc.msm7x27a \
     hwcomposer.msm7x27a \
     libtilerenderer
-    
+
+#I dont like torch apps    
 # Torch
-PRODUCT_PACKAGES += OmniTorch
+#PRODUCT_PACKAGES += OmniTorch
     
 # Lights
 PRODUCT_PACKAGES += \
@@ -71,14 +72,15 @@ PRODUCT_COPY_FILES += \
 # Prebuilt
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,device/samsung/kylessopen/prebuilt/system,system)
-    
+
+#Classic WebV died long time ago    
 # Classic Webview
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.webview.provider=classic
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    persist.webview.provider=classic
     
 #Optimization for low-memory devices
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.config.low_ram=true 
+    ro.config.low_ram=false
 
 # Hardware features available on this device
 PRODUCT_COPY_FILES += \
@@ -99,15 +101,14 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
 $(call find-copy-subdir-files,*,device/samsung/kylessopen/prebuilt/recovery,recovery/root)
 
-# FM
-PRODUCT_COPY_FILES += \
-    device/samsung/kylessopen/prebuilt/system/etc/init.qcom.fm.sh:/system/etc/init.qcom.fm.sh
-
-# FM Config
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.fm.analogpath.supported=true \
-    ro.fm.transmitter=false \
-    ro.fm.mulinst.recording.support=false
+## FM IS DEAD
+#PRODUCT_COPY_FILES += \
+#    device/samsung/kylessopen/prebuilt/system/etc/init.qcom.fm.sh:/system/etc/init.qcom.fm.sh
+## FM Config
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    ro.fm.analogpath.supported=true \
+#    ro.fm.transmitter=false \
+#    ro.fm.mulinst.recording.support=false
     
 # Enable repeatable keys in CWM
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -120,4 +121,4 @@ PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 PRODUCT_NAME := omni_kylessopen
 PRODUCT_DEVICE := kylessopen
 PRODUCT_MANUFACTURER := samsung
-PRODUCT_MODEL := GT-S7560M
+PRODUCT_MODEL := GT-S7560
