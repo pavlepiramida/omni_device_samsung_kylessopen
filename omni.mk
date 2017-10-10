@@ -11,6 +11,6 @@ $(call inherit-product, device/samsung/kylessopen/omni_kylessopen.mk)
 PRODUCT_DEVICE := kylessopen
 PRODUCT_NAME := omni_kylessopen
 PRODUCT_BRAND := samsung
-PRODUCT_MODEL := GT-S7560M
+PRODUCT_MODEL := GT-S7560
 PRODUCT_MANUFACTURER := samsung
-PRODUCT_RELEASE_NAME := GT-S7560M
+PRODUCT_RELEASE_NAME := GT-S7560
