@@ -22,7 +22,23 @@ PRODUCT_PACKAGES += \
 
 # Bluetooth
 PRODUCT_PACKAGES += \
-    btmac
+    bluetooth-headers \
+    hciconfig \
+    hciattach \
+    btmon \
+    btproxy \
+    bluetoothd-snoop \
+    btmgmt \
+    hcitool \
+    l2ping \
+    libsbc \
+    avinfo \
+    bccmd \
+    haltest \
+    libdbus \
+    audio.sco.default \
+    bluetoothd
+
 
 # Device
 PRODUCT_PACKAGES += \
