@@ -1,0 +1,75 @@
+From f10570eb6579ee75e9ba44e0b5536e79a560b73d Mon Sep 17 00:00:00 2001
+From: Grigori Goronzy <greg@blackbox>
+Date: Mon, 28 Jan 2013 08:05:39 +0100
+Subject: [PATCH 4/5] Prefer 16bpp surface formats
+
+Adds a property to use RGB565 surface formats for the opaque
+surface default, enabled by default.
+
+Conflicts:
+	services/surfaceflinger/SurfaceFlinger.cpp
+	services/surfaceflinger/SurfaceFlinger.h
+
+Change-Id: Iac9bbc8292a863e2ab86093df3ecf218e4ec61e1
+---
+ services/surfaceflinger/SurfaceFlinger.cpp | 8 +++++++-
+ services/surfaceflinger/SurfaceFlinger.h   | 3 +++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index 4f061e5df..59bafab6a 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -157,6 +157,8 @@ SurfaceFlinger::SurfaceFlinger()
+         mDebugInTransaction(0),
+         mLastTransactionTime(0),
+         mBootFinished(false),
++        mUseDithering(false),
++        mPrefer16bpp(0),
+         mPrimaryHWVsyncEnabled(false),
+         mHWVsyncAvailable(false),
+         mDaltonize(false)
+@@ -166,6 +168,9 @@ SurfaceFlinger::SurfaceFlinger()
+     // debugging stuff...
+     char value[PROPERTY_VALUE_MAX];
+ 
++    property_get("persist.sys.prefer_16bpp", value, "1");
++    mPrefer16bpp = atoi(value);
++
+     property_get("ro.bq.gpu_to_cpu_unsupported", value, "0");
+     mGpuToCpuSupported = !atoi(value);
+ 
+@@ -180,6 +185,7 @@ SurfaceFlinger::SurfaceFlinger()
+             mDebugDDMS = 0;
+         }
+     }
++
+     ALOGI_IF(mDebugRegion, "showupdates enabled");
+     ALOGI_IF(mDebugDDMS, "DDMS debugging enabled");
+ }
+@@ -2315,7 +2321,7 @@ status_t SurfaceFlinger::createNormalLayer(const sp<Client>& client,
+ #ifdef NO_RGBX_8888
+         format = PIXEL_FORMAT_RGB_565;
+ #else
+-        format = PIXEL_FORMAT_RGBX_8888;
++        format = mPrefer16bpp ? PIXEL_FORMAT_RGB_565 : PIXEL_FORMAT_RGBX_8888;
+ #endif
+         break;
+     }
+diff --git a/services/surfaceflinger/SurfaceFlinger.h b/services/surfaceflinger/SurfaceFlinger.h
+index 40a24018c..4c9be5a07 100644
+--- a/services/surfaceflinger/SurfaceFlinger.h
++++ b/services/surfaceflinger/SurfaceFlinger.h
+@@ -487,6 +487,9 @@ private:
+     volatile nsecs_t mDebugInTransaction;
+     nsecs_t mLastTransactionTime;
+     bool mBootFinished;
++    bool mUseDithering;
++    int mPrefer16bpp;
++
+ 
+     // these are thread safe
+     mutable MessageQueue mEventQueue;
+-- 
+2.14.1
+

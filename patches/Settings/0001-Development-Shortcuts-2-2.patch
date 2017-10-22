@@ -1,0 +1,142 @@
+From 95227f13c2467dceba37133f86afa59e219cfa43 Mon Sep 17 00:00:00 2001
+From: merkrehan <mrkrehanishaq1990@gmail.com>
+Date: Sun, 31 Aug 2014 17:13:12 +0530
+Subject: [PATCH 1/3] Development Shortcuts [2/2]
+
+Change-Id: If16b1afcec028079eba548e75eb2cdcfb569899d
+
+It enables the wipe data and application force close option in the recent
+tasks list and in the notification area.
+This is the settings part of the Commit
+
+https://gitorious.org/cyandreamproject/android_frameworks_base/commit/016664aa129ff00b556a6c56e06f474593d1a04f
+
+
+Change-Id: If16b1afcec028079eba548e75eb2cdcfb569899d
+---
+ res/values/custom_strings.xml                     |  4 ++++
+ res/xml/development_prefs.xml                     |  5 ++++
+ src/com/android/settings/DevelopmentSettings.java | 28 ++++++++++++++++++++++-
+ 3 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index efad20a7b..efc89669e 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -383,4 +383,8 @@
+     <string name="headset_plug_actions_kill">Kill app</string>
+     <string name="headset_plug_force_actions_title">Force remove action</string>
+     <string name="headset_plug_force_actions_summary">Run remove action also if shortcut was already running</string>
++
++    <!-- Development shortcut -->
++    <string name="development_shortcut_title">Development shortcut</string>
++    <string name="development_shortcut_summary">Enable \'wipe\' and \'force close\' options in notification area and recents app list</string>
+ </resources>
+diff --git a/res/xml/development_prefs.xml b/res/xml/development_prefs.xml
+index 8307c4e57..9c2b4c3e0 100644
+--- a/res/xml/development_prefs.xml
++++ b/res/xml/development_prefs.xml
+@@ -119,6 +119,11 @@
+             android:title="@string/allow_mock_location"
+             android:summary="@string/allow_mock_location_summary"/>
+ 
++	<CheckBoxPreference
++	    android:key="development_shortcut"
++	    android:title="@string/development_shortcut_title"
++	    android:summary="@string/development_shortcut_summary" />
++
+         <PreferenceScreen android:key="debug_app"
+                 android:title="@string/debug_app" />
+ 
+diff --git a/src/com/android/settings/DevelopmentSettings.java b/src/com/android/settings/DevelopmentSettings.java
+index 908f937c9..1a9a4855b 100644
+--- a/src/com/android/settings/DevelopmentSettings.java
++++ b/src/com/android/settings/DevelopmentSettings.java
+@@ -157,6 +157,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+ 
+     private static final String ADVANCED_REBOOT_KEY = "advanced_reboot";
+ 
++    private static final String DEVELOPMENT_SHORTCUT_KEY = "development_shortcut";
++
+     private static final int RESULT_DEBUG_APP = 1000;
+ 
+     private IWindowManager mWindowManager;
+@@ -216,6 +218,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+     private CheckBoxPreference mExperimentalWebView;
+ 
+     private CheckBoxPreference mAdvancedReboot;
++    private CheckBoxPreference mDevelopmentShortcut;
+ 
+     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
+     private final ArrayList<CheckBoxPreference> mResetCbPrefs
+@@ -280,6 +283,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+         mPassword = (PreferenceScreen) findPreference(LOCAL_BACKUP_PASSWORD);
+         mAllPrefs.add(mPassword);
+         mAdvancedReboot = findAndInitCheckboxPref(ADVANCED_REBOOT_KEY);
++	mDevelopmentShortcut = findAndInitCheckboxPref(DEVELOPMENT_SHORTCUT_KEY);
+ 
+         if (!android.os.Process.myUserHandle().equals(UserHandle.OWNER)) {
+             disableForUser(mEnableAdb);
+@@ -288,6 +292,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+             disableForUser(mEnableTerminal);
+             disableForUser(mPassword);
+             disableForUser(mAdvancedReboot);
++	    disableForUser(mDevelopmentShortcut);
+         }
+ 
+         mDebugAppPref = findPreference(DEBUG_APP_KEY);
+@@ -531,6 +536,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+         updateForceRtlOptions();
+         updateWifiDisplayCertificationOptions();
+         updateAdvancedRebootOptions();
++	updateDevelopmentShortcutOptions();
+     }
+ 
+     private void resetAdvancedRebootOptions() {
+@@ -547,7 +553,23 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+     private void updateAdvancedRebootOptions() {
+         mAdvancedReboot.setChecked(Settings.Secure.getInt(getActivity().getContentResolver(),
+                 Settings.Secure.ADVANCED_REBOOT, 1) != 0);
+-     }
++    }
++
++    private void resetDevelopmentShortcutOptions() {
++	Settings.Secure.putInt(getActivity().getContentResolver(),
++		Settings.Secure.DEVELOPMENT_SHORTCUT, 0);
++    }
++
++    private void writeDevelopmentShortcutOptions() {
++	Settings.Secure.putInt(getActivity().getContentResolver(),
++		Settings.Secure.DEVELOPMENT_SHORTCUT,
++		mDevelopmentShortcut.isChecked() ? 1 : 0);
++    }
++
++    private void updateDevelopmentShortcutOptions() {
++	mAdvancedReboot.setChecked(Settings.Secure.getInt(getActivity().getContentResolver(),
++			Settings.Secure.DEVELOPMENT_SHORTCUT, 0) != 0);
++    }
+ 
+     private void resetDangerousOptions() {
+         mDontPokeProperties = true;
+@@ -559,7 +581,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+             }
+         }
+         resetDebuggerOptions();
++	resetRootAccessOptions();
+         resetAdvancedRebootOptions();
++	resetDevelopmentShortcutOptions();
+         writeAnimationScaleOption(0, mWindowAnimationScale, null);
+         writeAnimationScaleOption(1, mTransitionAnimationScale, null);
+         writeAnimationScaleOption(2, mAnimatorDurationScale, null);
+@@ -1345,6 +1369,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+             writeWifiDisplayCertificationOptions();
+         } else if (preference == mAdvancedReboot) {
+             writeAdvancedRebootOptions();
++	} else if (preference == mDevelopmentShortcut) {
++	    writeDevelopmentShortcutOptions();
+         } else {
+             return super.onPreferenceTreeClick(preferenceScreen, preference);
+         }
+-- 
+2.14.1
+

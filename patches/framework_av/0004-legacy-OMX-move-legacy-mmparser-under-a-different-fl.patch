@@ -1,0 +1,33 @@
+From c3c461d9a5c454061b0ef57778921a4abe9abbc2 Mon Sep 17 00:00:00 2001
+From: Konsta <konsta09@gmail.com>
+Date: Wed, 19 Mar 2014 20:20:08 +0200
+Subject: [PATCH 4/8] legacy OMX: move legacy mmparser under a different flag
+
+...before removing the code completely. Just use libExtendedExtractor
+instead. Turns out it doesn't do much other than dlopen mmparser.
+
+Change-Id: Ic57ac852d9dabbbe2680910432dad95b83d92c66
+---
+ media/libstagefright/Android.mk | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
+index 6ce0b6d55..1baeca88f 100644
+--- a/media/libstagefright/Android.mk
++++ b/media/libstagefright/Android.mk
+@@ -157,7 +157,11 @@ endif #TARGET_ENABLE_AV_ENHANCEMENTS
+ 
+ 
+ ifeq ($(TARGET_QCOM_LEGACY_OMX),true)
+-    LOCAL_CFLAGS += -DQCOM_LEGACY_OMX -DQCOM_LEGACY_MMPARSER
++    LOCAL_CFLAGS += -DQCOM_LEGACY_OMX
++endif
++
++ifeq ($(TARGET_QCOM_LEGACY_MMPARSER),true)
++    LOCAL_CFLAGS += -DQCOM_LEGACY_MMPARSER
+     LOCAL_SRC_FILES += ExtendedMediaDefs.cpp
+ endif
+ 
+-- 
+2.14.1
+

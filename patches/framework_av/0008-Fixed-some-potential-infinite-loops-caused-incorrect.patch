@@ -1,0 +1,90 @@
+From 54fd699256fb9397e2148ba8ba0561b15fcc44f1 Mon Sep 17 00:00:00 2001
+From: Kenan Garibov <kengnatural@gmail.com>
+Date: Sun, 15 Jan 2017 16:27:13 +0300
+Subject: [PATCH 8/8] Fixed some potential infinite loops caused incorrect
+ handling of OMX_IndexParamVideoPortFormat parameter by some OMX codecs.
+
+Change-Id: I379784c988b94a6c2b95e550763e9f235ebe88c6
+---
+ media/libstagefright/ACodec.cpp   | 15 +++++++++++++++
+ media/libstagefright/OMXCodec.cpp | 17 ++++++++++++++---
+ 2 files changed, 29 insertions(+), 3 deletions(-)
+
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index e1d2a9ee4..80b5254d1 100755
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -50,6 +50,16 @@
+ #include "include/ExtendedUtils.h"
+ #endif
+ 
++
++
++// OMX Spec defines less than 50 color formats. If the query for
++// color format is executed for more than kMaxColorFormatSupported,
++// the query will fail to avoid looping forever.
++// 1000 is more than enough for us to tell whether the omx
++// component in question is buggy or not.
++const static uint32_t kMaxColorFormatSupported = 1000;
++
++
+ namespace android {
+ 
+ template<class T>
+@@ -1768,6 +1778,11 @@ status_t ACodec::setVideoPortFormatType(
+         }
+ 
+         ++index;
++        if (index >= kMaxColorFormatSupported)
++        {
++            ALOGE("ACodec.cpp:1890: Max color index reached");
++            break;
++        }
+     }
+ 
+     if (!found) {
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index 6c862c46e..64661ac98 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -1635,6 +1635,11 @@ status_t OMXCodec::setVideoOutputFormat(
+ 
+             while (OMX_ErrorNoMore != err) {
+                 format.nIndex++;
++                if (format.nIndex >= kMaxColorFormatSupported)
++                {
++                    CODEC_LOGE("1847: Max index reached. Color format %d is not supported", colorFormat);
++                    return ERROR_UNSUPPORTED;
++                }
+                 err = mOMX->getParameter(
+                         mNode, OMX_IndexParamVideoPortFormat,
+                             &format, sizeof(format));
+@@ -5535,7 +5540,15 @@ status_t QueryCodec(
+ #else
+     portFormat.nPortIndex = !isEncoder ? 1 : 0;
+ #endif
+-    for (OMX_U32 index = 0;;index++)  {
++    for (OMX_U32 index = 0;; index++) {
++
++        if (index >= kMaxColorFormatSupported)
++        {
++            ALOGE("6372: Max index reached. No remaining color format");
++            break;
++        }
++
++
+         portFormat.nIndex = index;
+         err = omx->getParameter(
+                 node, OMX_IndexParamVideoPortFormat,
+@@ -5543,8 +5556,6 @@ status_t QueryCodec(
+         if (err != OK) {
+             break;
+         }
+-        if (index != portFormat.nIndex)
+-		break;
+         caps->mColorFormats.push(portFormat.eColorFormat);
+     }
+ 
+-- 
+2.14.1
+

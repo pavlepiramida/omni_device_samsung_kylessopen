@@ -1,0 +1,213 @@
+From c9940e3421e0ee1c7da846dfdaeef3ef8d2e05ad Mon Sep 17 00:00:00 2001
+From: Steven Luo <steven@steven676.net>
+Date: Sat, 14 Dec 2013 16:03:15 -0800
+Subject: [PATCH 5/5] Forward-port surface dithering from CM10.2
+
+This allows the use of 16-bit color displays without excessive color
+banding;
+
+Change-Id: Icb469b9cb4beb686516c60bb576dbd0a73f505e0
+---
+ include/ui/PixelFormat.h                              |  1 +
+ libs/ui/PixelFormat.cpp                               | 16 ++++++++++++++++
+ services/surfaceflinger/Layer.cpp                     |  9 +++++++++
+ services/surfaceflinger/Layer.h                       |  6 ++++++
+ services/surfaceflinger/RenderEngine/RenderEngine.cpp |  8 ++++++++
+ services/surfaceflinger/RenderEngine/RenderEngine.h   |  2 ++
+ services/surfaceflinger/SurfaceFlinger.cpp            |  6 ++++++
+ services/surfaceflinger/SurfaceFlinger.h              |  5 ++++-
+ 8 files changed, 52 insertions(+), 1 deletion(-)
+
+diff --git a/include/ui/PixelFormat.h b/include/ui/PixelFormat.h
+index 19228c464..79a29bcfc 100644
+--- a/include/ui/PixelFormat.h
++++ b/include/ui/PixelFormat.h
+@@ -122,6 +122,7 @@ status_t getPixelFormatInfo(PixelFormat format, PixelFormatInfo* info);
+ 
+ ssize_t bytesPerPixel(PixelFormat format);
+ ssize_t bitsPerPixel(PixelFormat format);
++unsigned int minColorDepth(PixelFormat format);
+ 
+ }; // namespace android
+ 
+diff --git a/libs/ui/PixelFormat.cpp b/libs/ui/PixelFormat.cpp
+index 0595315b7..6517c8cd3 100644
+--- a/libs/ui/PixelFormat.cpp
++++ b/libs/ui/PixelFormat.cpp
+@@ -160,6 +160,22 @@ ssize_t bitsPerPixel(PixelFormat format) {
+     return BAD_VALUE;
+ }
+ 
++unsigned int minColorDepth(PixelFormat format) {
++    switch (format) {
++        case PIXEL_FORMAT_RGBA_8888:
++        case PIXEL_FORMAT_RGBX_8888:
++        case PIXEL_FORMAT_BGRA_8888:
++        case PIXEL_FORMAT_RGB_888:
++            return 8;
++        case PIXEL_FORMAT_RGB_565:
++        case PIXEL_FORMAT_RGBA_5551:
++            return 5;
++        case PIXEL_FORMAT_RGBA_4444:
++            return 4;
++    }
++    return BAD_VALUE;
++}
++
+ // ----------------------------------------------------------------------------
+ }; // namespace android
+ // ----------------------------------------------------------------------------
+diff --git a/services/surfaceflinger/Layer.cpp b/services/surfaceflinger/Layer.cpp
+index 82ce78118..1cf3884fb 100644
+--- a/services/surfaceflinger/Layer.cpp
++++ b/services/surfaceflinger/Layer.cpp
+@@ -95,6 +95,7 @@ Layer::Layer(SurfaceFlinger* flinger, const sp<Client>& client,
+         mDebug(false),
+         mFormat(PIXEL_FORMAT_NONE),
+         mOpaqueLayer(true),
++        mNeedsDithering(false),
+         mTransactionFlags(0),
+         mQueuedFrames(0),
+         mCurrentTransform(0),
+@@ -226,6 +227,12 @@ status_t Layer::setBuffers( uint32_t w, uint32_t h,
+     mSurfaceFlingerConsumer->setDefaultBufferFormat(format);
+     mSurfaceFlingerConsumer->setConsumerUsageBits(getEffectiveUsage(0));
+ 
++    if (mFlinger->getUseDithering()) {
++        int displayMinColorDepth = mFlinger->getMinColorDepth();
++        int layerMinColorDepth = minColorDepth(format);
++        mNeedsDithering = (layerMinColorDepth > displayMinColorDepth);
++    }
++
+     return NO_ERROR;
+ }
+ 
+@@ -613,6 +620,7 @@ void Layer::clearWithOpenGL(const sp<const DisplayDevice>& hw, const Region& cli
+ {
+     RenderEngine& engine(mFlinger->getRenderEngine());
+     computeGeometry(hw, mMesh);
++    engine.setDither(false);
+     engine.setupFillWithColor(red, green, blue, alpha);
+     engine.drawMesh(mMesh);
+ }
+@@ -659,6 +667,7 @@ void Layer::drawWithOpenGL(
+     texCoords[3] = vec2(right, 1.0f - top);
+ 
+     RenderEngine& engine(mFlinger->getRenderEngine());
++    engine.setDither(needsDithering());
+     engine.setupLayerBlending(mPremultipliedAlpha, isOpaque(), s.alpha);
+     engine.drawMesh(mMesh);
+     engine.disableBlending();
+diff --git a/services/surfaceflinger/Layer.h b/services/surfaceflinger/Layer.h
+index b6ff03939..7e246f121 100644
+--- a/services/surfaceflinger/Layer.h
++++ b/services/surfaceflinger/Layer.h
+@@ -152,6 +152,11 @@ public:
+      */
+     virtual bool isOpaque() const;
+ 
++    /*
++     * needsDithering - true if this surface needs dithering
++     */
++    virtual bool needsDithering() const     { return mNeedsDithering; }
++
+     /*
+      * isSecure - true if this surface is secure, that is if it prevents
+      * screenshots or VNC servers.
+@@ -342,6 +347,7 @@ private:
+     mutable bool mDebug;
+     PixelFormat mFormat;
+     bool mOpaqueLayer;
++    bool mNeedsDithering;
+ 
+     // these are protected by an external lock
+     State mCurrentState;
+diff --git a/services/surfaceflinger/RenderEngine/RenderEngine.cpp b/services/surfaceflinger/RenderEngine/RenderEngine.cpp
+index 8a8ee5630..ab5dfc80f 100644
+--- a/services/surfaceflinger/RenderEngine/RenderEngine.cpp
++++ b/services/surfaceflinger/RenderEngine/RenderEngine.cpp
+@@ -205,6 +205,14 @@ void RenderEngine::readPixels(size_t l, size_t b, size_t w, size_t h, uint32_t*
+     glReadPixels(l, b, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+ }
+ 
++void RenderEngine::setDither(bool dither) {
++    if (dither) {
++        glEnable(GL_DITHER);
++    } else {
++        glDisable(GL_DITHER);
++    }
++}
++
+ void RenderEngine::dump(String8& result) {
+     const GLExtensions& extensions(GLExtensions::getInstance());
+     result.appendFormat("GLES: %s, %s, %s\n",
+diff --git a/services/surfaceflinger/RenderEngine/RenderEngine.h b/services/surfaceflinger/RenderEngine/RenderEngine.h
+index e69b9140c..1ff5e9084 100644
+--- a/services/surfaceflinger/RenderEngine/RenderEngine.h
++++ b/services/surfaceflinger/RenderEngine/RenderEngine.h
+@@ -72,6 +72,8 @@ public:
+     void deleteTextures(size_t count, uint32_t const* names);
+     void readPixels(size_t l, size_t b, size_t w, size_t h, uint32_t* pixels);
+ 
++    void setDither(bool dither);
++
+     class BindImageAsFramebuffer {
+         RenderEngine& mEngine;
+         uint32_t mTexName, mFbName;
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index 59bafab6a..94884f5a5 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -569,6 +569,9 @@ void SurfaceFlinger::init() {
+     ALOGI("Client API: %s", eglQueryString(mEGLDisplay, EGL_CLIENT_APIS)?:"Not Supported");
+     ALOGI("EGLSurface: %d-%d-%d-%d, config=%p", r, g, b, a, mEGLConfig);
+ 
++    // assume red has minimum color depth
++    mMinColorDepth = r;
++
+     // get a RenderEngine for the given display / config (can't fail)
+     mRenderEngine = RenderEngine::create(mEGLDisplay, mEGLConfig);
+ 
+@@ -606,6 +609,9 @@ void SurfaceFlinger::init() {
+                 hw->acquireScreen();
+             }
+             mDisplays.add(token, hw);
++            if (!mUseDithering && bitsPerPixel(mHwc->getFormat(i)) <= 16) {
++                mUseDithering = true;
++            }
+         }
+     }
+ 
+diff --git a/services/surfaceflinger/SurfaceFlinger.h b/services/surfaceflinger/SurfaceFlinger.h
+index 4c9be5a07..655da7126 100644
+--- a/services/surfaceflinger/SurfaceFlinger.h
++++ b/services/surfaceflinger/SurfaceFlinger.h
+@@ -350,6 +350,9 @@ private:
+     size_t getMaxTextureSize() const;
+     size_t getMaxViewportDims() const;
+ 
++    uint32_t getMinColorDepth() const { return mMinColorDepth; }
++    inline bool getUseDithering() const { return mUseDithering; }
++
+     /* ------------------------------------------------------------------------
+      * Display and layer stack management
+      */
+@@ -460,6 +463,7 @@ private:
+     sp<EventThread> mEventThread;
+     sp<EventThread> mSFEventThread;
+     sp<EventControlThread> mEventControlThread;
++    uint32_t mMinColorDepth;
+     EGLContext mEGLContext;
+     EGLConfig mEGLConfig;
+     EGLDisplay mEGLDisplay;
+@@ -490,7 +494,6 @@ private:
+     bool mUseDithering;
+     int mPrefer16bpp;
+ 
+-
+     // these are thread safe
+     mutable MessageQueue mEventQueue;
+     FrameTracker mAnimFrameTracker;
+-- 
+2.14.1
+

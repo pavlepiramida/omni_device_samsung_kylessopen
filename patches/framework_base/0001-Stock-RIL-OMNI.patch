@@ -1,0 +1,99 @@
+From 416b91b0f0cbacfd636f7a3e9547bb3fc549a697 Mon Sep 17 00:00:00 2001
+From: Pavle Radosavljevic <pavlepiramida@gmail.com>
+Date: Mon, 16 Oct 2017 08:07:37 +0200
+Subject: [PATCH 1/8] Stock RIL/OMNI
+
+Change-Id: I52bd3ba3c22ed45a02d6a34333f9ab1143c7d928
+---
+ .../java/android/telephony/SignalStrength.java     | 53 ++++++++++------------
+ .../android/internal/telephony/RILConstants.java   |  4 +-
+ 2 files changed, 27 insertions(+), 30 deletions(-)
+
+diff --git a/telephony/java/android/telephony/SignalStrength.java b/telephony/java/android/telephony/SignalStrength.java
+index 7d9a313884..4ae56ddaad 100644
+--- a/telephony/java/android/telephony/SignalStrength.java
++++ b/telephony/java/android/telephony/SignalStrength.java
+@@ -259,19 +259,30 @@ public class SignalStrength implements Parcelable {
+     public SignalStrength(Parcel in) {
+         if (DBG) log("Size of signalstrength parcel:" + in.dataSize());
+ 
+-        mGsmSignalStrength = in.readInt();
+-        mGsmBitErrorRate = in.readInt();
+-        mCdmaDbm = in.readInt();
+-        mCdmaEcio = in.readInt();
+-        mEvdoDbm = in.readInt();
+-        mEvdoEcio = in.readInt();
+-        mEvdoSnr = in.readInt();
+-        mLteSignalStrength = in.readInt();
+-        mLteRsrp = in.readInt();
+-        mLteRsrq = in.readInt();
+-        mLteRssnr = in.readInt();
+-        mLteCqi = in.readInt();
+-        isGsm = (in.readInt() != 0);
++
++        mGsmSignalStrength = in.readInt() & 0xff;
++          mGsmBitErrorRate = in.readInt();
++        mCdmaDbm = in.readInt() & 0xff;
++          mCdmaEcio = in.readInt();
++        mEvdoDbm = in.readInt() & 0xff;
++          mEvdoEcio = in.readInt();
++          mEvdoSnr = in.readInt();
++          mLteSignalStrength = in.readInt();
++          mLteRsrp = in.readInt();
++          mLteRsrq = in.readInt();
++          mLteRssnr = in.readInt();
++          mLteCqi = in.readInt();
++ 		  isGsm = (in.readInt() != 0);
++
++		if (mLteSignalStrength == 99) {
++		    mLteRsrp = SignalStrength.INVALID;
++		    mLteRsrq = SignalStrength.INVALID;
++		    mLteRssnr = SignalStrength.INVALID;
++		    mLteCqi = SignalStrength.INVALID;
++		}
++		else {
++			mLteSignalStrength &= 0xff;
++		}
+     }
+ 
+     /**
+@@ -284,21 +295,7 @@ public class SignalStrength implements Parcelable {
+     public static SignalStrength makeSignalStrengthFromRilParcel(Parcel in) {
+         if (DBG) log("Size of signalstrength parcel:" + in.dataSize());
+ 
+-        SignalStrength ss = new SignalStrength();
+-        ss.mGsmSignalStrength = in.readInt();
+-        ss.mGsmBitErrorRate = in.readInt();
+-        ss.mCdmaDbm = in.readInt();
+-        ss.mCdmaEcio = in.readInt();
+-        ss.mEvdoDbm = in.readInt();
+-        ss.mEvdoEcio = in.readInt();
+-        ss.mEvdoSnr = in.readInt();
+-        ss.mLteSignalStrength = in.readInt();
+-        ss.mLteRsrp = in.readInt();
+-        ss.mLteRsrq = in.readInt();
+-        ss.mLteRssnr = in.readInt();
+-        ss.mLteCqi = in.readInt();
+-
+-        return ss;
++		return new SignalStrength(in);
+     }
+ 
+     /**
+diff --git a/telephony/java/com/android/internal/telephony/RILConstants.java b/telephony/java/com/android/internal/telephony/RILConstants.java
+index c5687eb6b4..ef17bfd69d 100644
+--- a/telephony/java/com/android/internal/telephony/RILConstants.java
++++ b/telephony/java/com/android/internal/telephony/RILConstants.java
+@@ -302,7 +302,7 @@ cat include/telephony/ril.h | \
+     int RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE = 1033;
+     int RIL_UNSOL_RIL_CONNECTED = 1034;
+     int RIL_UNSOL_VOICE_RADIO_TECH_CHANGED = 1035;
+-    int RIL_UNSOL_CELL_INFO_LIST = 1036;
+-    int RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED = 1037;
++    //int RIL_UNSOL_CELL_INFO_LIST = 1036;
++    int RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED = 1036;
+     int RIL_UNSOL_STK_SEND_SMS_RESULT = 11002; /* Samsung STK */
+ }
+-- 
+2.14.1
+

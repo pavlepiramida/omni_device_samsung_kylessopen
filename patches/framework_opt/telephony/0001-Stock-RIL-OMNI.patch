@@ -1,0 +1,70 @@
+From f6cce1c4bceaeb0542734393f3ea3b2b2ef1850a Mon Sep 17 00:00:00 2001
+From: Pavle Radosavljevic <pavlepiramida@gmail.com>
+Date: Sun, 22 Oct 2017 11:56:37 +0200
+Subject: [PATCH] Stock RIL-OMNI
+
+Change-Id: I69e91f8f45051263c6ee23d85d1a433ab712f218
+---
+ src/java/com/android/internal/telephony/RIL.java | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index ef1e4ea..43db69a 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -2713,7 +2713,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
+             case RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE: ret = responseVoid(p); break;
+             case RIL_UNSOL_RIL_CONNECTED: ret = responseInts(p); break;
+             case RIL_UNSOL_VOICE_RADIO_TECH_CHANGED: ret =  responseInts(p); break;
+-            case RIL_UNSOL_CELL_INFO_LIST: ret = responseCellInfoList(p); break;
++           // case RIL_UNSOL_CELL_INFO_LIST: ret = responseCellInfoList(p); break;
+             case RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED: ret =  responseVoid(p); break;
+             case RIL_UNSOL_STK_SEND_SMS_RESULT: ret = responseInts(p); break; // Samsung STK
+ 
+@@ -3085,15 +3085,15 @@ public class RIL extends BaseCommands implements CommandsInterface {
+                 break;
+             }
+ 
+-            case RIL_UNSOL_CELL_INFO_LIST: {
+-                if (RILJ_LOGD) unsljLogRet(response, ret);
++//            case RIL_UNSOL_CELL_INFO_LIST: {
++//                if (RILJ_LOGD) unsljLogRet(response, ret);
+ 
+-                if (mRilCellInfoListRegistrants != null) {
+-                    mRilCellInfoListRegistrants.notifyRegistrants(
+-                                        new AsyncResult (null, ret, null));
+-                }
+-                break;
+-            }
++//                if (mRilCellInfoListRegistrants != null) {
++//                    mRilCellInfoListRegistrants.notifyRegistrants(
++//                                        new AsyncResult (null, ret, null));
++//                }
++//                break;
++//            }
+ 
+             // Samsung STK
+             case RIL_UNSOL_STK_SEND_SMS_RESULT:
+@@ -3334,8 +3334,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
+             dc.isMpty = (0 != p.readInt());
+             dc.isMT = (0 != p.readInt());
+             dc.als = p.readInt();
+-            voiceSettings = p.readInt();
+-            dc.isVoice = (0 == voiceSettings) ? false : true;
++            dc.isVoice = (0 != p.readInt());
++			boolean isVideo = (0 != p.readInt());
+             if(samsungDriverCall)
+                  p.readInt();
+             dc.isVoicePrivacy = (0 != p.readInt());
+@@ -3942,7 +3942,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
+             case RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE: return "UNSOL_EXIT_EMERGENCY_CALLBACK_MODE";
+             case RIL_UNSOL_RIL_CONNECTED: return "UNSOL_RIL_CONNECTED";
+             case RIL_UNSOL_VOICE_RADIO_TECH_CHANGED: return "UNSOL_VOICE_RADIO_TECH_CHANGED";
+-            case RIL_UNSOL_CELL_INFO_LIST: return "UNSOL_CELL_INFO_LIST";
++            //case RIL_UNSOL_CELL_INFO_LIST: return "UNSOL_CELL_INFO_LIST";
+             case RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED:
+                 return "UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED";
+             case RIL_UNSOL_STK_SEND_SMS_RESULT: return "RIL_UNSOL_STK_SEND_SMS_RESULT";
+-- 
+2.14.1
+

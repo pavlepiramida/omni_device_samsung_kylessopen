@@ -1,0 +1,472 @@
+From 4e856adcc73e4d0fe22e1097b35a389347742d19 Mon Sep 17 00:00:00 2001
+From: UtkarshGupta <utkarsh.eminem@gmail.com>
+Date: Sat, 8 Mar 2014 13:26:06 +0530
+Subject: [PATCH 1/2] [2/2] OmniGears: Lockscreen Notifications
+
+Base: https://gerrit.omnirom.org/#/c/5734/
+
+PS15:
+-use our color picker
+
+PS16:
+-use our seekbar
+-rework some strings
+
+PS20:
+- Rebased
+
+Change-Id: I32e3d79a6c7198e66c302d751b50341da6466ff7
+---
+ res/values/custom_dimens.xml                       |   1 +
+ res/values/custom_strings.xml                      |  53 +++++-
+ res/xml/lockscreen_notifications.xml               | 133 +++++++++++++
+ res/xml/lockscreen_settings.xml                    |   5 +
+ .../omnigears/AOSPAL/LockscreenNotifications.java  | 208 +++++++++++++++++++++
+ 5 files changed, 397 insertions(+), 3 deletions(-)
+ create mode 100644 res/xml/lockscreen_notifications.xml
+ create mode 100644 src/org/omnirom/omnigears/AOSPAL/LockscreenNotifications.java
+
+diff --git a/res/values/custom_dimens.xml b/res/values/custom_dimens.xml
+index 8e62137..3d1fa8f 100755
+--- a/res/values/custom_dimens.xml
++++ b/res/values/custom_dimens.xml
+@@ -20,4 +20,5 @@
+     <dimen name="color_preference_height">16dip</dimen>
+     <dimen name="color_preference_height_large">32dip</dimen>
+     <dimen name="color_preference_end">20dip</dimen>
++    <dimen name="notification_row_min_height">70dp</dimen>
+ </resources>
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index ac2fddf..d5662ea 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -583,7 +583,54 @@
+     <string name="swap_volume_buttons_title">Match rotation</string>
+     <string name="swap_volume_buttons_summary">Adjust volume buttons action based on current rotation</string>
+ 
+-    <!-- Lockscreen immersive mode -->
+-    <string name="category_immersive_mode_title">Immersive mode</string>
+-    <string name="lockscreen_immersive_mode_title">Disable immersive mode</string>
++    <string name="swap_volume_advanced_settings_title">Advanced rotation settings</string>
++    <string name="swap_volume_advanced_settings_close">Close</string>
++    <string name="swap_volume_disabled_90_title">Disable at 90 degrees</string>
++    <string name="swap_volume_disabled_270_title">Disable at 270 degrees</string>
++
++   <!-- Lockscreen immersive mode -->
++   <string name="category_immersive_mode_title">Immersive mode</string>
++   <string name="lockscreen_immersive_mode_title">Disable immersive mode</string>
++
++    <!-- Lockscreen Notifications -->
++    <!-- Categories -->
++    <string name="layout">Layout</string>
++    <string name="privacy">Privacy</string>
++    <string name="proximity_sensor">Features requiring proximity sensor</string>
++
++    <string name="lockscreen_notifications_enable">Enable</string>
++    <string name="lockscreen_notifications">Notifications</string>
++    <string name="lockscreen_notifications_summary">Show pending notifications on lockscreen</string>
++    <string name="show_non_clearable">Show non clearable</string>
++    <string name="show_non_clearable_summary">Show non clearable notifications</string>
++    <string name="dismiss_all">Allow dismissing all notifications</string>
++    <string name="dismiss_all_summary">Allow dismissing even non clearable notifications. Of course, they\'re just hidden from lockscreen and not from the notification panel.</string>
++    <string name="dismiss_notification">Dismiss notification</string>
++    <string name="dismiss_notification_summary">Whether or not notification is dismissed when swiped away from interface</string>
++    <string name="hide_low_priority">Hide low priority</string>
++    <string name="hide_low_priority_summary">Hide low priority notifications such as google now weather notifications</string>
++    <string name="included_apps_title">Included applications</string>
++    <string name="included_apps_summary">Low priority notifications of included apps will be shown</string>
++    <string name="excluded_apps_title">Excluded applications</string>
++    <string name="excluded_apps_summary">Excluded apps will not show up as lockscreen notifications</string>
++    <string name="pocket_mode">Pocket mode</string>
++    <string name="pocket_mode_summary">Turn screen on and show all notifications when device is pulled out of pocket. Turn screen off when device gets back into pocket.</string>
++    <string name="show_always">Show always</string>
++    <string name="show_always_summary">Always turn screen on when pulled out of pocket, even when there are no notifications pending</string>
++    <string name="wake_on_notification">Wake on notification</string>
++    <string name="wake_on_notification_summary">Wake device when a new notification is received</string>
++    <string name="dynamic_width">Dynamic width</string>
++    <string name="dynamic_width_summary">Sets the width of notifications dynamically, so that they only use the space they really need</string>
++    <string name="offset_top">Display offset</string>
++    <string name="offset_top_summary">Offset from top of the screen</string>
++    <string name="notifications_height">Display number</string>
++    <string name="notifications_height_summary">Number of notifications displayed at once</string>
++    <string name="notification_color">Background color</string>
++    <string name="privacy_mode">Privacy mode</string>
++    <string name="privacy_mode_summary">Disables notifications from beeing shown and dismissed. This way, you just see the icons of your notifications.</string>
++    <string name="expanded_view">Expandable</string>
++    <string name="expanded_view_summary">Add possibility to toggle between normal and expanded view by longpress. The expanded view sometimes shows more private information so you might want to disable it.</string>
++    <string name="force_expanded_view">Default expanded</string>
++    <string name="force_expanded_view_summary">Show notifications expanded by default. You still will be able to toggle between expanded and normal view.</string>
++
+ </resources>
+diff --git a/res/xml/lockscreen_notifications.xml b/res/xml/lockscreen_notifications.xml
+new file mode 100644
+index 0000000..adf4be7
+--- /dev/null
++++ b/res/xml/lockscreen_notifications.xml
+@@ -0,0 +1,133 @@
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:title="@string/lockscreen_notifications"
++    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++        <SwitchPreference
++            android:key="lockscreen_notifications"
++            android:title="@string/lockscreen_notifications_enable"
++            android:persistent="false" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_show_non_clearable"
++            android:title="@string/show_non_clearable"
++            android:summary="@string/show_non_clearable_summary"
++            android:dependency="lockscreen_notifications"
++            android:defaultValue="true" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_dismiss_all"
++            android:title="@string/dismiss_all"
++            android:summary="@string/dismiss_all_summary"
++            android:dependency="lockscreen_notifications_show_non_clearable"
++            android:defaultValue="true" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_dismiss_notification"
++            android:title="@string/dismiss_notification"
++            android:summary="@string/dismiss_notification_summary"
++            android:dependency="lockscreen_notifications"
++            android:defaultValue="true" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_hide_low_priority"
++            android:title="@string/hide_low_priority"
++            android:summary="@string/hide_low_priority_summary"
++            android:dependency="lockscreen_notifications"
++            android:defaultValue="false" />
++
++        <org.omnirom.omnigears.chameleonos.AppMultiSelectListPreference
++            android:key="included_apps"
++            android:title="@string/included_apps_title"
++            android:summary="@string/included_apps_summary"
++            android:dependency="lockscreen_notifications_hide_low_priority"
++            android:persistent="false" />
++
++        <org.omnirom.omnigears.chameleonos.AppMultiSelectListPreference
++            android:key="excluded_apps"
++            android:title="@string/excluded_apps_title"
++            android:summary="@string/excluded_apps_summary"
++            android:dependency="lockscreen_notifications"
++            android:persistent="false" />
++
++    <PreferenceCategory
++        android:title="@string/proximity_sensor" >
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_pocket_mode"
++            android:title="@string/pocket_mode"
++            android:summary="@string/pocket_mode_summary"
++            android:dependency="lockscreen_notifications"
++            android:defaultValue="false" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_show_always"
++            android:title="@string/show_always"
++            android:summary="@string/show_always_summary"
++            android:dependency="lockscreen_notifications_pocket_mode"
++            android:defaultValue="false" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_wake_on_notification"
++            android:title="@string/wake_on_notification"
++            android:summary="@string/wake_on_notification_summary"
++            android:dependency="lockscreen_notifications"
++            android:defaultValue="false" />
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/layout" >
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_dynamic_width"
++            android:title="@string/dynamic_width"
++            android:dependency="lockscreen_notifications"
++            android:summary="@string/dynamic_width_summary"
++            android:defaultValue="false" />
++
++        <org.omnirom.omnigears.chameleonos.SeekBarPreference
++            android:key="offset_top"
++            android:title="@string/offset_top"
++            android:summary="@string/offset_top_summary"
++            android:max="100"
++            android:defaultValue="30"
++            settings:unitsRight="%"
++            android:dependency="lockscreen_notifications"
++            android:persistent="false" />
++
++        <org.omnirom.omnigears.preference.NumberPickerPreference
++            android:key="notifications_height"
++            android:dialogMessage="@string/notifications_height"
++            android:title="@string/notifications_height"
++            android:summary="@string/notifications_height_summary"
++            android:dependency="lockscreen_notifications"
++            android:persistent="false" />
++
++        <org.omnirom.omnigears.preference.ColorPickerPreference
++            android:key="notification_color"
++            android:title="@string/notification_color"
++            android:dependency="lockscreen_notifications"
++            android:persistent="false" />
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/privacy" >
++        <CheckBoxPreference
++            android:key="privacy_mode"
++            android:title="@string/privacy_mode"
++            android:summary="@string/privacy_mode_summary"
++            android:dependency="lockscreen_notifications"
++            android:persistent="false" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_expanded_view"
++            android:title="@string/expanded_view"
++            android:summary="@string/expanded_view_summary"
++            android:defaultValue="true" />
++
++        <org.omnirom.omnigears.preference.SystemCheckBoxPreference
++            android:key="lockscreen_notifications_force_expanded_view"
++            android:title="@string/force_expanded_view"
++            android:summary="@string/force_expanded_view_summary"
++            android:dependency="lockscreen_notifications_expanded_view"
++            android:defaultValue="false" />
++    </PreferenceCategory>
++</PreferenceScreen>
+diff --git a/res/xml/lockscreen_settings.xml b/res/xml/lockscreen_settings.xml
+index 927351c..7f8edef 100644
+--- a/res/xml/lockscreen_settings.xml
++++ b/res/xml/lockscreen_settings.xml
+@@ -34,6 +34,11 @@
+                     android:summary="@string/enable_camera_summary"
+                     android:persistent="false"/>
+ 
++            <PreferenceScreen
++                    android:title="@string/lockscreen_notifications"
++                    android:summary="@string/lockscreen_notifications_summary"
++                    android:fragment="org.omnirom.omnigears.AOSPAL.LockscreenNotifications" />
++
+     <PreferenceCategory
+             android:key="category_privacy"
+             android:title="@string/category_privacy_title"/>
+diff --git a/src/org/omnirom/omnigears/AOSPAL/LockscreenNotifications.java b/src/org/omnirom/omnigears/AOSPAL/LockscreenNotifications.java
+new file mode 100644
+index 0000000..b2a4af6
+--- /dev/null
++++ b/src/org/omnirom/omnigears/AOSPAL/LockscreenNotifications.java
+@@ -0,0 +1,208 @@
++package org.omnirom.omnigears.AOSPAL;
++
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.pm.PackageManager;
++import android.graphics.Point;
++import android.os.Bundle;
++import android.preference.CheckBoxPreference;
++import android.preference.PreferenceScreen;
++import android.preference.Preference;
++import android.preference.SwitchPreference;
++import android.provider.Settings;
++import android.text.TextUtils;
++import android.view.WindowManager;
++
++import com.android.settings.SettingsPreferenceFragment;
++import com.android.settings.R;
++
++import java.util.Arrays;
++import java.util.HashSet;
++import java.util.Set;
++
++import org.omnirom.omnigears.preference.ColorPickerPreference;
++import org.omnirom.omnigears.preference.NumberPickerPreference;
++import org.omnirom.omnigears.preference.SystemCheckBoxPreference;
++import org.omnirom.omnigears.chameleonos.AppMultiSelectListPreference;
++import org.omnirom.omnigears.chameleonos.SeekBarPreference;
++
++public class LockscreenNotifications
++        extends SettingsPreferenceFragment
++        implements Preference.OnPreferenceChangeListener {
++
++    private static final String LOCKSCREEN_NOTIFICATIONS = "lockscreen_notifications";
++    private static final String INCLUDED_APPS = "included_apps";
++    private static final String EXCLUDED_APPS = "excluded_apps";
++    private static final String POCKET_MODE = "lockscreen_notifications_pocket_mode";
++    private static final String SHOW_ALWAYS = "lockscreen_notifications_show_always";
++    private static final String WAKE_ON_NOTIFICATION = "lockscreen_notifications_wake_on_notification";
++    private static final String OFFSET_TOP = "offset_top";
++    private static final String NOTIFICATIONS_HEIGHT = "notifications_height";
++    private static final String NOTIFICATION_COLOR = "notification_color";
++    private static final String PRIVACY_MODE = "privacy_mode";
++    private static final String EXPANDED_VIEW = "lockscreen_notifications_expanded_view";
++
++    private SwitchPreference mLockscreenNotifications;
++    private AppMultiSelectListPreference mExcludedAppsPref;
++    private AppMultiSelectListPreference mIncludedAppsPref;
++    private SystemCheckBoxPreference mPocketMode;
++    private SystemCheckBoxPreference mShowAlways;
++    private SystemCheckBoxPreference mWakeOnNotification;
++    private SeekBarPreference mOffsetTop;
++    private NumberPickerPreference mNotificationsHeight;
++    private ColorPickerPreference mNotificationColor;
++    private CheckBoxPreference mPrivacyMode;
++    private SystemCheckBoxPreference mExpandedView;
++
++    private Context mContext;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++        addPreferencesFromResource(R.xml.lockscreen_notifications);
++        PreferenceScreen prefs = getPreferenceScreen();
++        final ContentResolver cr = getActivity().getContentResolver();
++
++        mContext = getActivity().getApplicationContext();
++
++        mLockscreenNotifications = (SwitchPreference) prefs.findPreference(LOCKSCREEN_NOTIFICATIONS);
++        mLockscreenNotifications.setChecked(Settings.System.getInt(cr,
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS, 0) == 1);
++        mLockscreenNotifications.setOnPreferenceChangeListener(this);
++
++        mExcludedAppsPref = (AppMultiSelectListPreference) prefs.findPreference(EXCLUDED_APPS);
++        Set<String> excludedApps = getExcludedApps();
++        if (excludedApps != null) {
++            mExcludedAppsPref.setValues(excludedApps);
++        }
++        mExcludedAppsPref.setOnPreferenceChangeListener(this);
++
++        mIncludedAppsPref = (AppMultiSelectListPreference) prefs.findPreference(INCLUDED_APPS);
++        Set<String> includedApps = getIncludedApps();
++        if (includedApps != null) {
++            mIncludedAppsPref.setValues(includedApps);
++        }
++        mIncludedAppsPref.setOnPreferenceChangeListener(this);
++
++        mPocketMode = (SystemCheckBoxPreference) prefs.findPreference(POCKET_MODE);
++        mShowAlways = (SystemCheckBoxPreference) prefs.findPreference(SHOW_ALWAYS);
++        mWakeOnNotification = (SystemCheckBoxPreference) prefs.findPreference(WAKE_ON_NOTIFICATION);
++        boolean hasProximitySensor = getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_PROXIMITY);
++        if (!hasProximitySensor) {
++            prefs.removePreference(mPocketMode);
++            prefs.removePreference(mShowAlways);
++            prefs.removePreference(mWakeOnNotification);
++        }
++
++        mOffsetTop = (SeekBarPreference) prefs.findPreference(OFFSET_TOP);
++        int notificationTop = (int)(Settings.System.getFloat(cr,
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_OFFSET_TOP, 0.3f) * 100);
++        mOffsetTop.setValue(notificationTop);
++        mOffsetTop.setOnPreferenceChangeListener(this);
++
++        mNotificationsHeight = (NumberPickerPreference) prefs.findPreference(NOTIFICATIONS_HEIGHT);
++        mNotificationsHeight.setValue(Settings.System.getInt(cr,
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS_HEIGHT, 4));
++        Point displaySize = new Point();
++        ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getSize(displaySize);
++        int max = Math.round((float)displaySize.y * (1f - (notificationTop / 100f)) /
++                (float)mContext.getResources().getDimensionPixelSize(R.dimen.notification_row_min_height));
++        mNotificationsHeight.setMinValue(1);
++        mNotificationsHeight.setMaxValue(max);
++        mNotificationsHeight.setOnPreferenceChangeListener(this);
++
++        mNotificationColor = (ColorPickerPreference) prefs.findPreference(NOTIFICATION_COLOR);
++        int color = Settings.System.getInt(cr,
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_COLOR, 0x69696969);
++        mNotificationColor.setColor(color);
++        mNotificationColor.setOnPreferenceChangeListener(this);
++
++        mPrivacyMode = (CheckBoxPreference) prefs.findPreference(PRIVACY_MODE);
++        mPrivacyMode.setChecked(Settings.System.getInt(cr,
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE, 0) == 1);
++        mPrivacyMode.setOnPreferenceChangeListener(this);
++
++        mExpandedView = (SystemCheckBoxPreference) prefs.findPreference(EXPANDED_VIEW);
++        mExpandedView.setEnabled(mLockscreenNotifications.isChecked() && !mPrivacyMode.isChecked());
++    }
++
++    @Override
++    public boolean onPreferenceChange(Preference pref, Object value) {
++        if (pref == mLockscreenNotifications) {
++            boolean lockscreenNotifications = (Boolean) value;
++            Settings.System.putInt(getContentResolver(),
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS, lockscreenNotifications ? 1 : 0);
++            mExpandedView.setEnabled(lockscreenNotifications && !mPrivacyMode.isChecked());
++        } else if (pref == mIncludedAppsPref) {
++            storeIncludedApps((Set<String>) value);
++        } else if (pref == mExcludedAppsPref) {
++            storeExcludedApps((Set<String>) value);
++        } else if (pref == mPrivacyMode) {
++            boolean privacyMode = (Boolean) value;
++            Settings.System.putInt(getContentResolver(),
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE, privacyMode ? 1 : 0);
++            mExpandedView.setEnabled(mLockscreenNotifications.isChecked() && !privacyMode);
++        } else if (pref == mOffsetTop) {
++            Settings.System.putFloat(getContentResolver(),
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS_OFFSET_TOP, (Integer)value / 100f);
++            Point displaySize = new Point();
++            ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getSize(displaySize);
++            int max = Math.round((float)displaySize.y * (1f - ((Integer)value / 100f)) /
++                    (float)mContext.getResources().getDimensionPixelSize(R.dimen.notification_row_min_height));
++            mNotificationsHeight.setMaxValue(max);
++        } else if (pref == mNotificationsHeight) {
++            Settings.System.putInt(getContentResolver(),
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS_HEIGHT, (Integer)value);
++        } else if (pref == mNotificationColor) {
++            Integer intHex = (Integer) value;
++            Settings.System.putInt(getContentResolver(),
++                    Settings.System.LOCKSCREEN_NOTIFICATIONS_COLOR, intHex);
++        }
++        return true;
++    }
++
++    private Set<String> getIncludedApps() {
++        String included = Settings.System.getString(getContentResolver(),
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_INCLUDED_APPS);
++        if (TextUtils.isEmpty(included)) {
++            return null;
++        }
++
++        return new HashSet<String>(Arrays.asList(included.split("\\|")));
++    }
++
++    private void storeIncludedApps(Set<String> values) {
++        StringBuilder builder = new StringBuilder();
++        String delimiter = "";
++        for (String value : values) {
++            builder.append(delimiter);
++            builder.append(value);
++            delimiter = "|";
++        }
++        Settings.System.putString(getContentResolver(),
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_INCLUDED_APPS, builder.toString());
++    }
++
++    private Set<String> getExcludedApps() {
++        String excluded = Settings.System.getString(getContentResolver(),
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_EXCLUDED_APPS);
++        if (TextUtils.isEmpty(excluded)) {
++            return null;
++        }
++
++        return new HashSet<String>(Arrays.asList(excluded.split("\\|")));
++    }
++
++    private void storeExcludedApps(Set<String> values) {
++        StringBuilder builder = new StringBuilder();
++        String delimiter = "";
++        for (String value : values) {
++            builder.append(delimiter);
++            builder.append(value);
++            delimiter = "|";
++        }
++        Settings.System.putString(getContentResolver(),
++                Settings.System.LOCKSCREEN_NOTIFICATIONS_EXCLUDED_APPS, builder.toString());
++    }
++}
+-- 
+2.14.1
+

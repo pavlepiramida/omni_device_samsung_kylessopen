@@ -1,0 +1,392 @@
+From 118a60a504b48bde9ef77c56b6c8e4671cb8a660 Mon Sep 17 00:00:00 2001
+From: Marco Magliona <marco.magliona@gmail.com>
+Date: Wed, 26 Mar 2014 00:49:19 +0100
+Subject: [PATCH 6/8] RecentsPanel: Make CircleMemoryMeter bigger, adjust
+ accordingly ClearAllButton
+
+PS5: Fix rect size of CircleMemoryMeter, now it's shown respecting the screen borders
+PS6: Fix position and size of "the three bars" ("Clear all" button)
+PS7: Fix copyright headers and spaces
+PS8: Add some comments to the new parts
+PS9: Changed code style, now lines are shorter
+PS11:
+   CircleMemoryMeter size is now decided in cm (only for tablets),
+   in this way we can know the size of the circle before it is drawn
+PS12: Removed debug tag I inserted for testing, centered and risized ClearAll button
+PS13:
+   Changed size and edited ClearAll images directly in res
+   folder(it's easier this way and the device don't have to do this by itself like in previous
+   patchsets),now this will make the circle bigger for all devices
+PS14: Final cleaning
+PS15: Found a better way to make changes(in res folder)
+PS16: Restored original format of the edited files
+PS17:
+   Added new resources for ClearAllButton in recents
+   (now different from the ones for ClearAllButton in notification shade)
+   Thanks to Max Weninger for pointing this out
+PS18: rebased, fixed typo
+
+Change-Id: I56f2ae7f23433ef0b4d4eaf893be14a09edf7b19
+---
+ .../res/drawable-hdpi/status_bar_clear_all.png     | Bin 0 -> 582 bytes
+ .../drawable-ldrtl-hdpi/status_bar_clear_all.png   | Bin 0 -> 645 bytes
+ .../drawable-ldrtl-mdpi/status_bar_clear_all.png   | Bin 0 -> 528 bytes
+ .../drawable-ldrtl-xhdpi/status_bar_clear_all.png  | Bin 0 -> 723 bytes
+ .../drawable-ldrtl-xxhdpi/status_bar_clear_all.png | Bin 0 -> 3144 bytes
+ .../res/drawable-mdpi/status_bar_clear_all.png     | Bin 0 -> 524 bytes
+ .../res/drawable-xhdpi/status_bar_clear_all.png    | Bin 0 -> 729 bytes
+ .../res/drawable-xxhdpi/status_bar_clear_all.png   | Bin 0 -> 492 bytes
+ .../SystemUI/res/drawable/status_bar_clear_all.xml |  21 +++++++++++++++++++++
+ .../res/layout-land/status_bar_recent_panel.xml    |  10 +++++-----
+ .../res/layout/status_bar_recent_panel.xml         |  10 +++++-----
+ .../android/systemui/recent/CircleMemoryMeter.java |   4 ++--
+ .../android/systemui/recent/RecentsPanelView.java  |   1 +
+ 13 files changed, 34 insertions(+), 12 deletions(-)
+ create mode 100644 packages/SystemUI/res/drawable-hdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-ldrtl-hdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-ldrtl-mdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-ldrtl-xhdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-ldrtl-xxhdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-mdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-xhdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable-xxhdpi/status_bar_clear_all.png
+ create mode 100644 packages/SystemUI/res/drawable/status_bar_clear_all.xml
+
+diff --git a/packages/SystemUI/res/drawable-hdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-hdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..613c894e56c066da6c402b764c110ed58e771c1c
+GIT binary patch
+literal 582
+zcmeAS@N?(olHy`uVBq!ia0vp^9w5xY1|&n@ZgvM!Y)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot5G@k_nSxeN@9mpxq^Ln>~)ow?iZu!Df>c?*7)
+zhl-6Z$Jqluns3>1rDVz<o_I&*`bk_b93Dvu@}G_165*H>`*`cSiQ7DkBjeAXITzb3
+z;KZTW0wXT+U7Omw<2S<&2EK;KMSCp`816L|8(06xZb)QrF*Gh-z|_~^{J^wsxzGzy
+z34P&&8w+#3RZLi3@pxK<f_|)mQueH=UJJ6O=ByELO`V{>#_!1MNe*m1i)LQyoc*Qd
+z=A^e#llL*JNzVEb-4XImM#TM}#p8KthJGE3)H2Jr_x%6-x+mb9$Q;Mt2hM4!pX9IJ
+zZ@T%p(sPCK^=H<w`86g#F!Y-evecCATtjxb{EVA>G#bSujvVe0;x@@T%(+Ez!tn>;
+z>N*?MmVI|r_`NOY_}O>!j@qXO$g1D4DZF`3x$Gm8Z^K=U_9?zqy{h?~yOjbiJLET{
+zUy5C9wz2)dm-WJ1Cy4)+vfF-qlc>DS`DH0O)p1D^ZKWkoKU@06GJ}5y%QfL$Uye2S
+z-TiyyOd7YmXt(f*hPOOSYZ;?!XD+c%S}L-lYsOvyjdsqpFK)E6%)Hto88Z3Xyyd3M
+zx56ghJ9A};dab|<*&SW%USE&R&c5<nZJF9DyV+M`;(Q{N;lZ!?Z?eDGjBep+<$hkk
+P7-#Tw^>bP0l+XkKW}@=p
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-ldrtl-hdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-ldrtl-hdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..96dd4931f068b5bdae4557ca25d4ead11166e73a
+GIT binary patch
+literal 645
+zcmeAS@N?(olHy`uVBq!ia0vp^2_VeD1|%QND7OGoY)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot3=uT<q47X}6<Ax{^_kcwMxZ&~*VI|?*B+@Di6
+z?WmKDk&<5Hk=PwPLY$J~3QA9<jvVnw;ZRg`abnQcmlJ2SopdyLub6G~?SJ+wRo!jB
+zT?v`KI%k54=Ok3Lwp&wg(#-9R%MWN?2;Y^*B>O?GLPoH*n{kKP#Zs#WiUnbY46irc
+zmrh{&GE-7;BHM%W{;#hWUCv5#;GZ-7`V7YDv!_lKWj1(obIr2*e-vjJF&8DjeO$*b
+z+n~|9V|7f6^@EgE`Ng{I3)t-#u4{`w41SP&I?^Ci-XP_G#%=c_tyf)s&t{a4{ILIi
+z__k{+UIrK?wEILdeAg1c#`5gI^o}1TYibW{leX7q-pYQ!_`#w_%$JzAH%vb;`OF;G
+zBexj-?6tOEX|YM-+Z!*j1hyP|y=$pgxejcImugsjb?MpA>hpWO%V#p~mldx)I+0cS
+z_gdZqWwHh05n+4>WD^n@^z`>Jyl;4ZU{#Tz9dq3OBHf#u@8i{No^7AHcQ&i*Y5((m
+z%=_-<^*CGiFAy_&aI9ng!`mW}0=)OWbab3K!&kw0XZgJcc{66sWA0aa^x5zm<L(_N
+z&uc#4RK%e6d*S}C3~L(Ri&nQi%-36;{H~?k)+xQmc*pFP!xrv>|80^a+H$t`El4=D
+zF!nWL#1yBP-5lq258bxDV)}urBATo4?0o&{sVDt*G#<-&;xidF#wM+M!mifWmsZCf
+RqyS7X44$rjF6*2UngH1t4RHVf
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-ldrtl-mdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-ldrtl-mdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..c74d6bcbd586a40fd1144a7aefa9e4df4dd3ed78
+GIT binary patch
+literal 528
+zcmeAS@N?(olHy`uVBq!ia0vp^4j|0I1|(Ny7TyC=Y)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot5WqQ=4l%NZCL=X$z0hE&{oJHyt`$x)<r|8EBo
+z)?V!mY1+4LM%`K|T_n7&Q9^rbA){EBnOiSgtHS$RJe;j8&wl=pw1_vlJNxAB^mBht
+zHV8OzD7HX|?AED;9lO*2Tbw?tb3Ih$U4!xh))M7&XBw>v^3!t5&x<{5$?|+I!*u+B
+zbimA_^9(oG^%~0}r*G6?v{L->-Gh-~pV&;Mo4c+zY?9d^{KltI<VGAT<GRNFgy)&D
+zQ`;ZBZ`*2eQ!l_tT=KVk+B0wc11*jk^GgN1-!hcnXZ_anH2MG9>@<DND-HXZ*3Y=f
+zV8M7!DLRGEq(S<@p}V<ZdaKSIObt!YUL(Qy%0YLko`L3!gC`ysznwRqDRc7_rj&=z
+zv<3M#e8}C##q_1|{f4BV1x#PU7IK?3rXAF~V7&SIRQVRQ(#er_OU@i-<evR$+BL?*
+z``*3NeV}lqGxPt^M&1WE&&UO7G(EODT;O4)`(r{8>zw6U49fkAuJS=vE4Li<)U?=@
+z^j$^YLHEp`zaH!+4QHpYN`(Dae<1dwr^X|bp&uTMzyNho+5aN2h}q4&w;ULE44$rj
+JF6*2UngE&~(|rH{
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-ldrtl-xhdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-ldrtl-xhdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..3a430b29d2db98776aada528a99caa54b1fb281d
+GIT binary patch
+literal 723
+zcmeAS@N?(olHy`uVBq!ia0vp^4Is?H1|$#LC7uRSY)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot5W`JK|zZww4f37#&FAr-gY-r3kC>?m{m<9qv)
+zh2c*Q9J0RfN}z^U{?PUfUm0uIHg4Yb(J|*8<GFKDHXk-@2$=NdhK~nFN9%|Ap3i<a
+zwoXWEzkB~rd3sry<0KVN+~})PRi=lgYSdPBCAGy0+77Gd$qO!>Qp6d<Je%$9FDb$O
+z+j1o}8M^sy8LU?S%ld)sN8ta{uNb5sm=<imF2;P}fa_WY?u2=PHLp118PgZXF;#IL
+z2=PC*>fbr81H1m2G05KOf0IA+x6C!3M1~X~eBzrB{50Y8o%xI}4#-%nkG^K(aHW>l
+zTIfZl)(@$QxaW*Uw?iAw3w|s<vNC~p-S*=L*XDVtSMOWHaC}u*zZv_5Q;OOSw=W*H
+zESPMwM7Q+E4_&2qbJ;V*?=jgh-eU~!bUwlRfun+ZkN(m#eWkGv4cQa!@5u{J3bpR!
+zToTOb@NLVxlRk>S4KfPY4ltYm!VI6~MqDT20_W_ly2<b-*<)MUcR$B#E*H9lE4p92
+z5RUP(WS)1;AieMG^8?>IDn2+VX*)dDdhj^GQ|hzO2l?r}m5cBC*G+Q^YjCrz7ZVKD
+zd@A{&>+W_AqrRgoI*t5-g|`noO*(pD;eMvLO|#FO<TxNz!BfMOSN)<vnJpok)kcLq
+zVfXs`du3WCG8a?`OLQLJGuwN;KQnte15X1_L!0R*--MNqKfS4J=<J&|MW2oT|E7Zm
+zA13wf^Vub_<vH^mX8DspwO-b-Mli+m-BQ|W_$56kT34k|uoF*&FWLW_nf2nVd**xJ
+RxC4_PgQu&X%Q~loCIB$WFx~(F
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-ldrtl-xxhdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-ldrtl-xxhdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..1790eb70bfc9eb47b00a99b1fb2590c36c9c9b29
+GIT binary patch
+literal 3144
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-mdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-mdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..6700ee2bd703e621ac0c2b3e58e47eb7a1fe9f2e
+GIT binary patch
+literal 524
+zcmeAS@N?(olHy`uVBq!ia0vp^4j|0I1|(Ny7TyC=Y)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot4%#p$4u6$}iFGd*1#Ln>~)onh<8Y$(vWe>>x$
+z^(-B2!50F83fTA<r$3P3&|2qkTv32GR*TE;fIY{-cNb=`ac=SRXqx=p^P1V~yB|OI
+zq}wF)7#@>I1`}sO78d@qQCh{A!{OPxeS-^sM~7FCu;A_kW*@jha+foIcJROSbHTPV
+zJ&`|RA294-wbFfl?SNDPn~3%SasAAX<ujQWZ2q@0UfnXE@$t8YqfgF#5oGdK<ra8Z
+z$ypMtvE}PAHO}%-7qN~G`TvTV%XSH5X~vnJamo;p+c5D{*}J^(1ACXWE7>Y2sc0%a
+z;<&*$&*;$}wy?%zPj$hI6GNuYVtv-Y`an6j;b-6tb1ueNTYgw6^Sm;d<tebh%W~i3
+z$cm@?{^zq+cu${u{fxj1ruRpeAMA+m?|!MyZR1t-=R4D%Yd0jWy|fK%y<oBW=>AU)
+zx(UWdb8hFe8F1h6cvX9qcj-O0?~Qxyq@|Z1NbLH#D}-?#dq&P4A18Z<`)=>%JYs#p
+zbowRFiH{9WL$t*8511BAtbCZ+Ao}20^yDMZ@B;^8+cEWhyGsp&^qFP?<Bh@7)z4*}
+HQ$iB}@HW;h
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-xhdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-xhdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..39da608002c5a6098860a3d978ff3cb0a61b7b70
+GIT binary patch
+literal 729
+zcmeAS@N?(olHy`uVBq!ia0vp^4Is?H1|$#LC7uRSY)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot5Cc;$?W4GauSX`U{QAr-gY-m%XUc9dxQ_<XbM
+z#3m074+Srm>D&c<At6_`%xPr4a4Gn5(X0*)(bi5DArr-Ke68hEMR}bT<R6>&TzzfK
+zxvFn-Z~jbgR`HyK8)dnE`Sa9UvpdSw-NmqO6Z?t_uauR%G@nXTOp3MHz;aFSW9_c#
+zv%YS8W$=YNf!l`pULU{8Yek*|%nx`!6qf0;Eof4H@bHJF%Gb8&2O<`EONFZV92m_u
+zPn#*)aC@T-^Mw-<8Fi`CuAliGAZyIP=D_A~_f@SxMA~)5Y3U6A43zdCzv~om&7?qU
+z^GvT7t54q7WxdaSZqn-o8=@<Ab##<+dmnriv;FqLrBhZ|aLDES+{FH)Uw5b9)0<tX
+z`~myfD_CsgmPgFIpUxcPdgQEK|FiJwKM%wO4H=#v$bJxg=}*<HQ?-n7jN!>2cpQ$#
+z<yh`EVww;-jqyi!`=qT$Zrv$*x4*!6MKRj}h7&-z!oS^!_l#Zc?JFnm-D5VGyY;+P
+zzP;~%vvvbfo0g>yg3I=QxT$viHro#w!R`AzQuqTlvKLrKO#1d))ZkyN_uA6VwRd;E
+zVa(e4r$fR^^L*p<1N}?pC1ic%eh}*tbB=FjN%GYIj`>Xb4X>B{p2f6*#g1WmNrlh8
+zrBe^g{`jz7^?k~Dk%m0+;wUbMp6{F22sGr?D?H9ic+S(nIDs)>dz2K5SlRENk^gUo
+zr!}8XVt8fE<kv7?G>uW4Ibi!!<{GAZleY_5)bp;Z-z~n9-&eQciq)NmehYBN`=ljh
+bf0)iW&pEhucFQebB4qG%^>bP0l+XkK<4QJA
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-xxhdpi/status_bar_clear_all.png b/packages/SystemUI/res/drawable-xxhdpi/status_bar_clear_all.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..905cc79837eb3fd3d1c5f0f076d1aec91a71028c
+GIT binary patch
+literal 492
+zcmeAS@N?(olHy`uVBq!ia0vp^2SAvE4M+yv$zcalY)RhkE)4%caKYZ?lYt_f1s;*b
+z3=G`DAk4@xYmNj^kiEpy*OmPqvot5CvFq$Pi3|*km7Xq+Ar-gY-c|H-4isp+SkEEU
+z=+fY-7{U13VdFe6p$lsmP8JDB2r(_<%rJVh;Jkp`_iuAVeXPD0Up8X|8c70Z_&Bvc
+zLH2I#<R>KuF1}y=s(6~MOjXzFonA$j5AN`LF5`S~z&d3<Cj(;xg9C#Cg8%~u0}BHa
+zgloWleZlLW9-pip+_@hH@-YznpCf-P>cZXQp6A$Q{_b5Bms4QAT;R0cq&s{T-;*cx
+zetr8)f)ATnAftQEd}kCZ`5riFGo$<cu&c9qnIL9vh+k&a`r_SW6@TWwe=(ug=RLk(
+z%+rqP9*FbY%x=r4)~oK6E_k<gIS0f9;>bVC<XOMTPWNnJN&so_boFyt=akR{0KjU5
+AOaK4?
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable/status_bar_clear_all.xml b/packages/SystemUI/res/drawable/status_bar_clear_all.xml
+new file mode 100644
+index 0000000000..c983fd0a67
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/status_bar_clear_all.xml
+@@ -0,0 +1,21 @@
++<!--  Copyright (C) 2014 The OmniROM Project
++
++ This program is free software: you can redistribute it and/or modify
++ it under the terms of the GNU General Public License as published by
++ the Free Software Foundation, either version 3 of the License, or
++ (at your option) any later version.
++
++ This program is distributed in the hope that it will be useful,
++ but WITHOUT ANY WARRANTY; without even the implied warranty of
++ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ GNU General Public License for more details.
++
++ You should have received a copy of the GNU General Public License
++ along with this program.  If not, see <http://www.gnu.org/licenses/>.
++-->
++
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true"
++        android:drawable="@drawable/status_bar_clear_all" />
++    <item android:drawable="@drawable/status_bar_clear_all" />
++</selector>
+diff --git a/packages/SystemUI/res/layout-land/status_bar_recent_panel.xml b/packages/SystemUI/res/layout-land/status_bar_recent_panel.xml
+index eba231df86..0c4180bf5d 100644
+--- a/packages/SystemUI/res/layout-land/status_bar_recent_panel.xml
++++ b/packages/SystemUI/res/layout-land/status_bar_recent_panel.xml
+@@ -58,22 +58,22 @@
+ 
+         <com.android.systemui.recent.CircleMemoryMeter
+             android:id="@+id/circle_meter"
+-            android:layout_width="50dp"
+-            android:layout_height="50dp"
++            android:layout_width="100dp"
++            android:layout_height="100dp"
+             android:layout_marginTop="2dp"
+             android:layout_marginRight="2dp"
+             android:layout_gravity="top|left" />
+ 
+         <ImageView
+             android:id="@+id/recents_clear_all"
+-            android:layout_width="50dp"
+-            android:layout_height="50dp"
++            android:layout_width="100dp"
++            android:layout_height="100dp"
+             android:layout_marginTop="2dp"
+             android:layout_marginRight="2dp"
+             android:layout_gravity="top|right"
+             android:padding="10dp"
+             android:scaleType="fitCenter"
+-            android:src="@drawable/ic_notify_clear" />
++            android:src="@drawable/status_bar_clear_all" />
+ 
+     </FrameLayout>
+ 
+diff --git a/packages/SystemUI/res/layout/status_bar_recent_panel.xml b/packages/SystemUI/res/layout/status_bar_recent_panel.xml
+index b7741c9b7b..a96e7c0462 100644
+--- a/packages/SystemUI/res/layout/status_bar_recent_panel.xml
++++ b/packages/SystemUI/res/layout/status_bar_recent_panel.xml
+@@ -62,22 +62,22 @@
+ 
+         <com.android.systemui.recent.CircleMemoryMeter
+             android:id="@+id/circle_meter"
+-            android:layout_width="50dp"
+-            android:layout_height="50dp"
++            android:layout_width="100dp"
++            android:layout_height="100dp"
+             android:layout_marginTop="2dp"
+             android:layout_marginRight="2dp"
+             android:layout_gravity="top|left" />
+ 
+         <ImageView
+             android:id="@+id/recents_clear_all"
+-            android:layout_width="50dp"
+-            android:layout_height="50dp"
++            android:layout_width="100dp"
++            android:layout_height="100dp"
+             android:layout_marginTop="2dp"
+             android:layout_marginRight="2dp"
+             android:layout_gravity="top|right"
+             android:padding="10dp"
+             android:scaleType="fitCenter"
+-            android:src="@drawable/ic_notify_clear" />
++            android:src="@drawable/status_bar_clear_all" />
+ 
+     </FrameLayout>
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/recent/CircleMemoryMeter.java b/packages/SystemUI/src/com/android/systemui/recent/CircleMemoryMeter.java
+index ad95c41408..465550091d 100644
+--- a/packages/SystemUI/src/com/android/systemui/recent/CircleMemoryMeter.java
++++ b/packages/SystemUI/src/com/android/systemui/recent/CircleMemoryMeter.java
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (C) 2013 The ChameleonOS Open Source Project
+- * Copyright (C) 2013 The OmniROM Project
++ * Copyright (C) 2014 The OmniROM Project
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -224,4 +224,4 @@ public class CircleMemoryMeter extends ImageView {
+     private void initSizeMeasureIconHeight() {
+         mCircleSize = Math.min(getWidth(), getHeight());
+     }
+-}
++}
+\ No newline at end of file
+diff --git a/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java b/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
+index 281aca367b..98fab3f9b1 100644
+--- a/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
++++ b/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2011 The Android Open Source Project
++ * Copyright (C) 2014 The OmniROM Project
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+-- 
+2.14.1
+

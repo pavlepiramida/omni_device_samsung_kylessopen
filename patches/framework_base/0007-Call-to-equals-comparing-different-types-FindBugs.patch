@@ -1,0 +1,30 @@
+From 6ad4975135f920cb528107b8d0255299560a42ea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?L=C3=A1szl=C3=B3=20D=C3=A1vid?= <laszlo.david@gmail.com>
+Date: Sun, 8 Dec 2013 23:44:42 +0100
+Subject: [PATCH 7/8] Call to equals() comparing different types (FindBugs)
+
+Call to HashSet<PrintServiceInfo>.equals(ArrayList<PrintServiceInfo>).
+The result of this comparison will always be false.
+
+Change-Id: Ic8cc6eab99cea4c7b3841faf6bc84c246273e8d0
+---
+ services/java/com/android/server/print/UserState.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/services/java/com/android/server/print/UserState.java b/services/java/com/android/server/print/UserState.java
+index f23a992cd5..70ea0524d9 100644
+--- a/services/java/com/android/server/print/UserState.java
++++ b/services/java/com/android/server/print/UserState.java
+@@ -657,7 +657,8 @@ final class UserState implements PrintSpoolerCallbacks, PrintServiceCallbacks {
+             tempPrintServices.add(PrintServiceInfo.create(installedService, mContext));
+         }
+ 
+-        if (!tempPrintServices.equals(mInstalledServices)) {
++        if (tempPrintServices.size() != mInstalledServices.size()
++                || !tempPrintServices.containsAll(mInstalledServices)) {
+             mInstalledServices.clear();
+             mInstalledServices.addAll(tempPrintServices);
+             return true;
+-- 
+2.14.1
+

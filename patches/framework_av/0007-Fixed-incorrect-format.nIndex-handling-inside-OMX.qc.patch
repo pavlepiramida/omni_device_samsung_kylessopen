@@ -1,0 +1,27 @@
+From e9af054005fa14b728991c83e117e8a622415b8f Mon Sep 17 00:00:00 2001
+From: Kenan Garibov <kengnatural@gmail.com>
+Date: Sun, 21 Aug 2016 13:44:11 +0300
+Subject: [PATCH 7/8] Fixed incorrect format.nIndex handling inside
+ OMX.qcom.video.encoder.avc. Should fix new versions of Viber problem.
+
+Change-Id: Iad4da2474d74960d91045d287c0558c73f0249dc
+---
+ media/libstagefright/OMXCodec.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index a3f772d00..6c862c46e 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -5543,6 +5543,8 @@ status_t QueryCodec(
+         if (err != OK) {
+             break;
+         }
++        if (index != portFormat.nIndex)
++		break;
+         caps->mColorFormats.push(portFormat.eColorFormat);
+     }
+ 
+-- 
+2.14.1
+

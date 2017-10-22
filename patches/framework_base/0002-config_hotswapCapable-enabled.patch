@@ -1,0 +1,26 @@
+From f9d4d2c980e3ded1130202afe488b21cc6be6e53 Mon Sep 17 00:00:00 2001
+From: Pavle Radosavljevic <pavlepiramida@gmail.com>
+Date: Mon, 16 Oct 2017 08:09:30 +0200
+Subject: [PATCH 2/8] config_hotswapCapable enabled
+
+Change-Id: Ib2443612cd2389903b80bc744b04220a1f453c07
+---
+ core/res/res/values/config.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index e1c27e3441..c84c57ccbe 100644
+--- a/core/res/res/values/config.xml
++++ b/core/res/res/values/config.xml
+@@ -607,7 +607,7 @@
+     <bool name="config_enableTranslucentDecor">true</bool>
+ 
+     <!-- Is the device capable of hot swapping an UICC Card -->
+-    <bool name="config_hotswapCapable">false</bool>
++    <bool name="config_hotswapCapable">true</bool>
+ 
+     <!-- Enable puk unlockscreen by default.
+          If unlock screen is disabled, the puk should be unlocked through Emergency Dialer -->
+-- 
+2.14.1
+

@@ -1,0 +1,65 @@
+From 2f6382353b4e6d0196da0a2fa8295adace6f6dfb Mon Sep 17 00:00:00 2001
+From: Kenan Garibov <kengnatural@gmail.com>
+Date: Fri, 29 Jul 2016 20:23:13 +0300
+Subject: [PATCH 6/8] Added Dazzozo's fix for
+ OMX_QCOM_COLOR_FormatYVU420SemiPlanar issue.
+
+Change-Id: I80a3a5a61f28e20fd929881aac8bd4b31c0a369a
+---
+ include/media/stagefright/ACodec.h |  2 +-
+ media/libstagefright/ACodec.cpp    | 12 ++++++++++--
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/include/media/stagefright/ACodec.h b/include/media/stagefright/ACodec.h
+index 494cff530..3393c265d 100644
+--- a/include/media/stagefright/ACodec.h
++++ b/include/media/stagefright/ACodec.h
+@@ -223,7 +223,7 @@ private:
+     status_t submitOutputMetaDataBuffer();
+     void signalSubmitOutputMetaDataBufferIfEOS_workaround();
+     status_t allocateOutputBuffersFromNativeWindow();
+-#ifdef USE_SAMSUNG_COLORFORMAT
++#if defined(USE_SAMSUNG_COLORFORMAT) || defined(QCOM_LEGACY_OMX)
+     void setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat);
+ #endif
+     status_t cancelBufferToNativeWindow(BufferInfo *info);
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 444d350c5..e1d2a9ee4 100755
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -593,7 +593,7 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
+         return err;
+     }
+ 
+-#ifdef USE_SAMSUNG_COLORFORMAT
++#if defined(USE_SAMSUNG_COLORFORMAT) || defined(QCOM_LEGACY_OMX)
+     OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
+     setNativeWindowColorFormat(eNativeColorFormat);
+ 
+@@ -824,7 +824,7 @@ status_t ACodec::submitOutputMetaDataBuffer() {
+     return OK;
+ }
+ 
+-#ifdef USE_SAMSUNG_COLORFORMAT
++#if defined(USE_SAMSUNG_COLORFORMAT)
+ void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat)
+ {
+     // In case of Samsung decoders, we set proper native color format for the Native Window
+@@ -841,6 +841,14 @@ void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat
+         }
+     }
+ }
++#elif defined(QCOM_LEGACY_OMX)
++void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat)
++{
++    if (!strncmp(mComponentName.c_str(), "OMX.qcom.", 9)) {
++        if (eNativeColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar)
++            eNativeColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCrCb_420_SP;
++    }
++}
+ #endif
+ 
+ status_t ACodec::cancelBufferToNativeWindow(BufferInfo *info) {
+-- 
+2.14.1
+
